@@ -1,6 +1,6 @@
 # Mintkit
 
-A Mint.com API
+A Mint.com API.  Not at all affialiated with or endorsed by mint.com/intuit.  Your mileage may vary.
 
 ## Installation
 

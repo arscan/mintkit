@@ -1,4 +1,6 @@
 require "mechanize"
+require "json"
+
 module Mintkit
 
   class Client
@@ -7,23 +9,15 @@ module Mintkit
 
       @username = username
       @password = password
+      @token = nil
 
-      @agent = Mechanize.new
     end
 
     # login to my account
-    def login
-      page = @agent.get('https://wwws.mint.com/login.event')
-      form = page.forms[2]
-      form.username = @username
-      form.password = @password
-      @agent.submit(form,form.buttons.first)
-      return
-
-    end
     # get all the transactions
     def transactions
-      raw_transactions = @agent.get("https://wwws.mint.com/transactionDownload.event?").body
+      agent = login
+      raw_transactions = agent.get("https://wwws.mint.com/transactionDownload.event?").body
 
       transos = []
 
@@ -48,18 +42,58 @@ module Mintkit
 
         
       end
+      logout(agent)
       transos
       
     end
 
-    def logout
+    def accounts
+      agent = login
+      page = agent.get('https://wwws.mint.com/overview.event')
+
+
+      requeststring = %q#[{"args":{"types":["BANK","CREDIT","INVESTMENT","LOAN","MORTGAGE","OTHER_PROPERTY","REAL_ESTATE","VEHICLE","UNCLASSIFIED"]},"service":"MintAccountService","task":"getAccountsSortedByBalanceDescending","id":"8675309"}]#
+
+      accounts = JSON.parse(agent.post("https://wwws.mint.com/bundledServiceController.xevent?token=#{@token}",{"input" => requeststring}).body)["response"]["8675309"]["response"]
+
+      logout(agent)
+ 
+      accounts
 
     end
 
     # force a refresh on my account
     def refresh
+      agent = login
+      page = agent.get('https://wwws.mint.com/overview.event')
+
+      agent.post("https://wwws.mint.com/refreshFILogins.xevent", {"token"=>@token})
+
+      logout(agent)
+
+      true
       
     end
+  private
+
+    def login
+
+      agent = Mechanize.new{|a| a.ssl_version, a.verify_mode = 'SSLv3', OpenSSL::SSL::VERIFY_NONE}
+      page = agent.get('https://wwws.mint.com/login.event')
+      form = page.forms[2]
+      form.username = @username
+      form.password = @password
+      page = agent.submit(form,form.buttons.first)
+      @token = page.at('input').attributes["value"].value.match(/"token":"([0-9a-zA-Z]*)"/)[1]
+      agent
+
+    end
+
+    def logout(agent)
+      agent.get('https://wwws.mint.com/logout.event?task=explicit')
+      true
+    end
+
 
   private
     def remove_quotes(input)

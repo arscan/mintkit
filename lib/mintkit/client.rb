@@ -94,8 +94,6 @@ module Mintkit
       true
     end
 
-
-  private
     def remove_quotes(input)
         input.slice(1..-1).slice(0..-2)
     end

@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["robscanlon@gmail.com"]
   spec.description   = %q{Ruby API for mint.com. Not at all affiliated with or endorsed by  mint.com/Intuit.  Your mileage may vary.}
   spec.summary       = spec.description
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/arscan/mintkit"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)

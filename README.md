@@ -18,7 +18,31 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Command line: 
+
+``` shell
+mintkit --help
+```
+
+Ruby API: 
+
+```ruby
+client = Mintkit::Client.new(username,password)
+
+# refresh your account
+client.refresh             #refresh the accounts
+
+# dump all accounts and transactions
+puts client.accounts       #print out the accounts
+puts client.transactions   #print out all your transactions
+
+# or use iteratorst
+client.transactions do |t|
+   puts "#{t[:account]} #{t[:amount]} #{t[:description]} #t{t[:date]}"
+do
+end
+
+```
 
 ## Contributing
 

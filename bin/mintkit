@@ -1,0 +1,102 @@
+#!/usr/bin/env ruby
+
+require 'mintkit'
+require 'trollop'
+require 'io/console'
+
+
+Signal.trap("PIPE", "EXIT")
+
+############################3
+# Main functions
+#
+
+def refresh(client)
+  client.refresh
+
+  puts "Account is currently refreshing.  It might take a minute or two"
+
+end
+
+def accounts(client)
+  client.accounts do |a|
+    puts "%-10s %10s   %s" % [a[:account_type],a[:value],a[:name][0..27]]
+  end
+
+end
+
+def transactions(client)
+  client.transactions do |t|
+    sign = "-"
+    sign = "" if t[:type] == "credit"
+    puts "%-11s %1s%-9s %s" % [ t[:date].strftime("%-m/%-d/%Y"), sign, t[:amount], t[:description]]
+    #puts "#{t[:date]}  #{t[:amount]}  \t#{t[:description]}" 
+  end
+
+end
+
+#############################3
+# Options, etc
+
+opts = Trollop::options do
+  version Mintkit::VERSION
+  banner <<-EOS
+Mintkit provides a simple interface to Mint.com.  Not affiliated with Mint.com or Intuit.  Your mileage may vary.
+
+Usage:
+  mintkit [options] command
+
+where command is one of:
+  refresh         :refreshes your accounts
+  accounts        :lists your accounts and balances
+  transactions    :lists your transactions
+
+and options are:
+EOS
+
+  opt :username, "Mint.com username", :type => :string
+  opt :password, "Mint.com password", :type => :string
+end
+
+username = opts.username
+password = opts.password
+
+command = ARGV.shift
+args = ARGV.join(' ')
+
+unless command
+  puts "Error: no command specified.  Try \"mintkit --help\""
+  exit
+end
+
+unless username
+  print "Mint.com username: "
+  username = $stdin.gets.chomp
+end
+
+unless password
+  print "Mint.com password: "
+  password = STDIN.noecho(&:gets)
+  print "\n"
+end
+
+
+#############################3
+#
+# create the client and call the appropriate function
+
+
+client = Mintkit::Client.new(username,password)
+
+case 
+when command == 'refresh'
+  refresh(client)
+
+when command == 'accounts'
+  accounts(client)
+
+when command == 'transactions'
+  transactions(client)
+else
+  puts "No such command: #{command}"
+end

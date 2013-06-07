@@ -30,16 +30,15 @@ Ruby API:
 client = Mintkit::Client.new(username,password)
 
 # refresh your account
-client.refresh             #refresh the accounts
+client.refresh             #refresh the accounts (it doesn't block yet while refreshing)
 
 # dump all accounts and transactions
 puts client.accounts       #print out the accounts
 puts client.transactions   #print out all your transactions
 
-# or use iteratorst
+# or use iterators (works for accounts as well)
 client.transactions do |t|
    puts "#{t[:account]} #{t[:amount]} #{t[:description]} #t{t[:date]}"
-do
 end
 
 ```

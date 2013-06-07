@@ -1,5 +1,6 @@
 require "mechanize"
 require "json"
+require "mintkit/error"
 
 module Mintkit
 
@@ -7,9 +8,7 @@ module Mintkit
 
     def initialize(username, password)
 
-      @username = username
-      @password = password
-      @token = nil
+      @username, @password  = username, password
       @agent = Mechanize.new{|a| a.ssl_version, a.verify_mode = 'SSLv3', OpenSSL::SSL::VERIFY_NONE}
       login
 
@@ -105,14 +104,9 @@ module Mintkit
       form.username = @username
       form.password = @password
       page = @agent.submit(form,form.buttons.first)
-      if page.at('input').attributes["value"]
-        @token = page.at('input').attributes["value"].value.match(/"token":"([0-9a-zA-Z]*)"/)[1]
-        true
-      else
-        false
-      end
 
-
+      raise FailedLogin unless page.at('input').attributes["value"]
+      @token = page.at('input').attributes["value"].value.match(/"token":"([0-9a-zA-Z]*)"/)[1]
     end
 
     def logout

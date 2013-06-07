@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'mintkit'
+require 'mintkit/error'
 require 'trollop'
 require 'io/console'
 
@@ -86,7 +87,12 @@ end
 # create the client and call the appropriate function
 
 
-client = Mintkit::Client.new(username,password)
+begin
+  client = Mintkit::Client.new(username,password)
+rescue Mintkit::FailedLogin
+  puts "Login failed. Please check that your username/password is correct"
+  exit 1
+end
 
 case 
 when command == 'refresh'

@@ -38,7 +38,7 @@ puts client.transactions   #print out all your transactions
 
 # or use iterators (works for accounts as well)
 client.transactions do |t|
-   puts "#{t[:account]} #{t[:amount]} #{t[:description]} #t{t[:date]}"
+   puts "#{t[:account]} #{t[:amount]} #{t[:description]} #{t[:date]}"
 end
 
 ```

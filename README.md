@@ -1,6 +1,6 @@
 # Mintkit
 
-A Mint.com API.  Not at all affialiated with or endorsed by mint.com/intuit.  Your mileage may vary.
+A Mint.com API.  Not at all affiliated with or endorsed by mint.com/intuit.  Your mileage may vary.
 
 ## Installation
 
@@ -29,7 +29,7 @@ Ruby API:
 ```ruby
 client = Mintkit::Client.new(username,password)
 
-# tell mint to refresh all your account
+# tell mint to refresh all your accounts
 client.refresh             #(note: it doesn't block yet while refreshing)
 
 # dump all accounts and transactions

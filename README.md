@@ -29,8 +29,8 @@ Ruby API:
 ```ruby
 client = Mintkit::Client.new(username,password)
 
-# refresh your account
-client.refresh             #refresh the accounts (it doesn't block yet while refreshing)
+# tell mint to refresh your account
+client.refresh             #(note: it doesn't block yet while refreshing)
 
 # dump all accounts and transactions
 puts client.accounts       #print out the accounts

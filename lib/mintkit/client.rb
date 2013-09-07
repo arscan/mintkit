@@ -1,4 +1,5 @@
 require "mechanize"
+require "ostruct"
 require "json"
 require "mintkit/error"
 
@@ -49,16 +50,33 @@ module Mintkit
       
     end
 
+    ACCOUNT_REQUEST_ARGUMENTS = [{
+      'args' => {
+        'types' => [
+          "BANK",
+          "CREDIT",
+          "INVESTMENT",
+          "LOAN",
+          "MORTGAGE",
+          "OTHER_PROPERTY",
+          "REAL_ESTATE",
+          "VEHICLE",
+          "UNCLASSIFIED"
+        ],
+      },
+      "service" => "MintAccountService",
+      "task" => "getAccountsSortedByBalanceDescending",
+      "id" => "8675309",
+    }]
+
+
     def accounts
-      page = @agent.get('https://wwws.mint.com/overview.event')
+      response_body = @agent.post("https://wwws.mint.com/bundledServiceController.xevent?token=#{@token}",{"input" => ACCOUNT_REQUEST_ARGUMENTS.to_json}).body
+      parsed_body = JSON.parse(response_body)
+      accounts = parsed_body["response"]["8675309"].fetch("response") { [] }
 
-      requeststring = %q#[{"args":{"types":["BANK","CREDIT","INVESTMENT","LOAN","MORTGAGE","OTHER_PROPERTY","REAL_ESTATE","VEHICLE","UNCLASSIFIED"]},"service":"MintAccountService","task":"getAccountsSortedByBalanceDescending","id":"8675309"}]#
-
-      accounts = JSON.parse(@agent.post("https://wwws.mint.com/bundledServiceController.xevent?token=#{@token}",{"input" => requeststring}).body)["response"]["8675309"]["response"]
-
-      accountlist = []
-      accounts.each do |a|
-        account = {
+      accounts.each_with_object([]) do |a, list|
+        account = OpenStruct.new({
           :current_balance => a["currentBalance"],
           :login_status => a["fiLoginUIStatus"],
           :currency => a["currency"],
@@ -66,23 +84,17 @@ module Mintkit
           :amount_due => a["dueAmt"],
           :name => a["name"],
           :value => a["value"],
-          #:due_date => Date.strptime(a["dueDate"], '%m/%d/%Y'),
           :last_updated => Time.at(a["lastUpdated"]/1000).to_date,
           :last_updated_string => a["lastUpdatedInString"],
           :active => !!a["isActive"],
           :login_status => a["fiLoginStatus"],
-          :account_type => a["accountType"],
+          :account_type => a["klass"],
           :date_added => Time.at(a["addAccountDate"]/1000).to_date
-        }
+        })
 
-        if block_given?
-          yield account
-        end
-
-        accountlist << account
-
+        yield account if block_given?
+        list << account
       end
-      accountlist
 
     end
 

@@ -2,6 +2,9 @@
 
 A Mint.com API.  Not at all affiliated with or endorsed by mint.com/intuit.  Your mileage may vary.
 
+This is currently not being maintained. I will circle back when I have a chance, but in the meantime try out 
+https://github.com/mattdbridges/minty
+
 ## Installation
 
 Add this line to your application's Gemfile:

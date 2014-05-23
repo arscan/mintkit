@@ -12,6 +12,14 @@ Signal.trap("PIPE", "EXIT")
 # Main functions
 #
 
+def truncate(string, length)
+  if string.length > length
+    "#{string[0..length]}..."
+  else
+    string
+  end
+end
+
 def refresh(client)
   client.refresh
 
@@ -21,7 +29,7 @@ end
 
 def accounts(client)
   client.accounts do |a|
-    puts "%-10s %10s   %s" % [a[:account_type],a[:value],a[:name][0..27]]
+    puts "%-10s %10s   %s" % [a.account_type, a.value, truncate(a.name, 27)]
   end
 
 end
